@@ -1,0 +1,33 @@
+<!DOCTYPE html><html><head><title>Techlab</title></head><body>...</body></html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Techlab E-commerce</title>
+    <script src="script.js" defer></script>
+</head>
+<body>
+<nav>
+    <button onclick="mostrarProductos()">Productos</button>
+    <button onclick="mostrarFormulario()">Agregar Producto</button>
+</nav>
+
+<section id="seccion-productos" style="display: none;">
+    <h2>Lista de Productos</h2>
+    <table border="1" id="tabla-productos"><tbody></tbody></table>
+</section>
+
+<section id="seccion-formulario" style="display: none;">
+    <h2>Agregar Producto</h2>
+    <form id="form-agregar" onsubmit="agregarProducto(event)">
+        <input name="nombre" placeholder="Nombre" required><br>
+        <textarea name="descripcion" placeholder="Descripción" required></textarea><br>
+        <input name="precio" type="number" required><br>
+        <input name="categoria" placeholder="Categoría" required><br>
+        <input name="imagenUrl" placeholder="Imagen URL" required><br>
+        <input name="stock" type="number" required><br>
+        <button type="submit">Guardar</button>
+    </form>
+    <p id="resultado-formulario"></p>
+</section>
+</body>
+</html>
