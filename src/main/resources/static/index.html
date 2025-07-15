@@ -9,16 +9,22 @@
             margin: 20px;
             background-color: #f5f5f5;
             color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
         nav {
             background: #444;
             color: white;
             padding: 12px 0;
             display: flex;
-            justify-content: center;  /* Centrar botones horizontalmente */
-            gap: 15px;                /* Separación entre botones */
+            justify-content: center;
+            gap: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 900px;
         }
         nav button {
             background-color: #007bff;
@@ -44,6 +50,10 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 900px;
+            box-sizing: border-box;
+            text-align: center;
         }
         .visible { display: block; }
 
@@ -51,6 +61,7 @@
             border: 1px solid #ddd;
             border-collapse: collapse;
             padding: 10px;
+            text-align: center;
         }
         th {
             background-color: #007bff;
@@ -60,6 +71,7 @@
             margin-bottom: 15px;
             padding-bottom: 15px;
             border-bottom: 1px solid #ddd;
+            text-align: center;
         }
         .producto img {
             border-radius: 6px;
@@ -68,23 +80,35 @@
         }
 
         #form-agregar-producto input[type="text"],
-        #form-agregar-producto input[type="number"] {
+        #form-agregar-producto input[type="number"],
+        #form-registrar-usuario input[type="text"],
+        #form-registrar-usuario input[type="email"],
+        #form-registrar-usuario input[type="password"],
+        #form-registrar-usuario input[type="number"] {
             margin: 7px 0;
             padding: 8px;
-            width: 270px;
+            width: 300px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 14px;
             display: block;
+            margin-left: auto;
+            margin-right: auto;
             box-sizing: border-box;
             transition: border-color 0.3s ease;
+            text-align: center;
         }
         #form-agregar-producto input[type="text"]:focus,
-        #form-agregar-producto input[type="number"]:focus {
+        #form-agregar-producto input[type="number"]:focus,
+        #form-registrar-usuario input[type="text"]:focus,
+        #form-registrar-usuario input[type="email"]:focus,
+        #form-registrar-usuario input[type="password"]:focus,
+        #form-registrar-usuario input[type="number"]:focus {
             border-color: #007bff;
             outline: none;
         }
-        #form-agregar-producto button {
+        #form-agregar-producto button,
+        #form-registrar-usuario button {
             padding: 10px 18px;
             margin-top: 12px;
             background-color: #28a745;
@@ -96,8 +120,13 @@
             font-size: 16px;
             box-shadow: 0 2px 6px rgba(40,167,69,0.7);
             transition: background-color 0.3s ease;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 150px;
         }
-        #form-agregar-producto button:hover {
+        #form-agregar-producto button:hover,
+        #form-registrar-usuario button:hover {
             background-color: #1e7e34;
             box-shadow: 0 4px 8px rgba(30,126,52,0.85);
         }
@@ -141,6 +170,15 @@
             font-style: italic;
             font-size: 13px;
             color: #555;
+            display: block;
+            margin-top: 6px;
+        }
+
+        #pedido-estado,
+        #agregar-producto-estado,
+        #registro-estado {
+            margin-top: 10px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -152,6 +190,7 @@
     <button onclick="mostrar('pedido')">Realizar Pedido</button>
     <button onclick="mostrar('historial')">Historial de Pedidos</button>
     <button onclick="mostrar('agregarProducto')">Agregar Producto</button>
+    <button onclick="mostrar('registrarUsuario')">Registrar Usuario</button>
 </nav>
 
 <section id="productos">
@@ -201,6 +240,18 @@
     <p id="agregar-producto-estado"></p>
 </section>
 
+<section id="registrarUsuario">
+    <h2>Registrar Nuevo Usuario</h2>
+    <form id="form-registrar-usuario">
+        <input type="text" id="nombreUsuario" placeholder="Nombre" required />
+        <input type="email" id="emailUsuario" placeholder="Email" required />
+        <input type="password" id="passwordUsuario" placeholder="Contraseña" required />
+        <input type="number" id="edadUsuario" placeholder="Edad" min="1" />
+        <button type="submit">Registrar Usuario</button>
+    </form>
+    <p id="registro-estado"></p>
+</section>
+
 <script>
     const carrito = [];
 
@@ -213,6 +264,10 @@
           document.getElementById("agregar-producto-estado").innerText = "";
           document.getElementById("form-agregar-producto").reset();
           document.getElementById("nombreArchivoSeleccionado").textContent = "";
+      }
+      if (id === "registrarUsuario") {
+          document.getElementById("registro-estado").innerText = "";
+          document.getElementById("form-registrar-usuario").reset();
       }
     }
 
@@ -334,7 +389,7 @@
           }
           let html = "";
           data.forEach(pedido => {
-            html += `<div style="margin-bottom:10px;border:1px solid #ccc;padding:10px;">
+            html += `<div style="margin-bottom:10px;border:1px solid #ccc;padding:10px;text-align:left;">
                        <strong>Pedido #${pedido.id}</strong><br>
                        Estado: ${pedido.estado} <br>
                        Total: $${pedido.costoTotal} <br>
@@ -409,11 +464,60 @@
       }
     });
 
+    // Registrar usuario con mostrar ID recibido
+    document.getElementById("form-registrar-usuario").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const nuevoUsuario = {
+        nombre: document.getElementById("nombreUsuario").value.trim(),
+        email: document.getElementById("emailUsuario").value.trim(),
+        password: document.getElementById("passwordUsuario").value,
+        edad: parseInt(document.getElementById("edadUsuario").value) || null
+      };
+
+      if (!nuevoUsuario.nombre || !nuevoUsuario.email || !nuevoUsuario.password) {
+        const estado = document.getElementById("registro-estado");
+        estado.style.color = "red";
+        estado.innerText = "Por favor complete todos los campos obligatorios.";
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/usuarios", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(nuevoUsuario)
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText || "Error al registrar usuario");
+        }
+
+        const data = await res.json();
+
+        const estado = document.getElementById("registro-estado");
+        estado.style.color = "green";
+        estado.innerText = `Usuario registrado con éxito. ID: ${data.id}`;
+
+        e.target.reset();
+      } catch (error) {
+        const estado = document.getElementById("registro-estado");
+        estado.style.color = "red";
+        estado.innerText = "Error: " + error.message;
+      }
+    });
+
     mostrar('productos');
 </script>
 
 </body>
 </html>
+
+
+
+
+
 
 
 
