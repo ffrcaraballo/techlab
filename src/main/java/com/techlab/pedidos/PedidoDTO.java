@@ -1,5 +1,4 @@
-// DTO Pedido
-package com.techlab.pedidos;
+package com.techlab.pedidos.dto;
 
 import java.util.List;
 
@@ -31,3 +30,4 @@ public class PedidoDTO {
         this.itemsPedido = itemsPedido;
     }
 }
+

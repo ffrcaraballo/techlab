@@ -1,31 +1,38 @@
-// Clase Pedido
 package com.techlab.pedidos;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Table(name = "pedidos")
 public class Pedido {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private Long usuarioId;
-    private List<LineaPedido> lineas;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "pedido_id")
+    private List<LineaPedido> lineas = new ArrayList<>();
+
     private LocalDateTime fechaCreacion;
+
     private String estado; // Ej: pendiente, confirmado, enviado, entregado, cancelado
+
+    private double costoTotal;
 
     public Pedido() {
         this.lineas = new ArrayList<>();
         this.fechaCreacion = LocalDateTime.now();
         this.estado = "pendiente";
+        this.costoTotal = 0.0;
     }
 
-    public Pedido(Long id, Long usuarioId, List<LineaPedido> lineas) {
-        this.id = id;
-        this.usuarioId = usuarioId;
-        this.lineas = lineas;
-        this.fechaCreacion = LocalDateTime.now();
-        this.estado = "pendiente";
-    }
+    // Getters y setters
 
     public Long getId() {
         return id;
@@ -67,9 +74,12 @@ public class Pedido {
         this.estado = estado;
     }
 
-    public double calcularTotal() {
-        return lineas.stream()
-                .mapToDouble(LineaPedido::calcularSubtotal)
-                .sum();
+    public double getCostoTotal() {
+        return costoTotal;
+    }
+
+    public void setCostoTotal(double costoTotal) {
+        this.costoTotal = costoTotal;
     }
 }
+

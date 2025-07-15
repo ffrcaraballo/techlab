@@ -1,33 +1,420 @@
-<!DOCTYPE html><html><head><title>Techlab</title></head><body>...</body></html>
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Techlab E-commerce</title>
-    <script src="script.js" defer></script>
+    <meta charset="UTF-8" />
+    <title>TechLab E-commerce</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        nav {
+            background: #444;
+            color: white;
+            padding: 12px 0;
+            display: flex;
+            justify-content: center;  /* Centrar botones horizontalmente */
+            gap: 15px;                /* Separación entre botones */
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        nav button {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,123,255,0.6);
+        }
+        nav button:hover {
+            background-color: #0056b3;
+            box-shadow: 0 4px 8px rgba(0,86,179,0.8);
+        }
+
+        section {
+            display: none;
+            margin-top: 25px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .visible { display: block; }
+
+        table, th, td {
+            border: 1px solid #ddd;
+            border-collapse: collapse;
+            padding: 10px;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .producto {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        .producto img {
+            border-radius: 6px;
+            margin-top: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        #form-agregar-producto input[type="text"],
+        #form-agregar-producto input[type="number"] {
+            margin: 7px 0;
+            padding: 8px;
+            width: 270px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            display: block;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+        #form-agregar-producto input[type="text"]:focus,
+        #form-agregar-producto input[type="number"]:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        #form-agregar-producto button {
+            padding: 10px 18px;
+            margin-top: 12px;
+            background-color: #28a745;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 2px 6px rgba(40,167,69,0.7);
+            transition: background-color 0.3s ease;
+        }
+        #form-agregar-producto button:hover {
+            background-color: #1e7e34;
+            box-shadow: 0 4px 8px rgba(30,126,52,0.85);
+        }
+
+        .btn-eliminar {
+            background-color: #d9534f;
+            border: none;
+            color: white;
+            padding: 5px 12px;
+            margin-left: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 13px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-eliminar:hover {
+            background-color: #c9302c;
+        }
+
+        /* Estilo para el botón "Subir imagen" */
+        label[for="archivoImagen"] {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            user-select: none;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 2px 6px rgba(0,123,255,0.7);
+            transition: background-color 0.3s ease;
+        }
+        label[for="archivoImagen"]:hover {
+            background-color: #0056b3;
+            box-shadow: 0 4px 10px rgba(0,86,179,0.9);
+        }
+        #nombreArchivoSeleccionado {
+            margin-left: 12px;
+            font-style: italic;
+            font-size: 13px;
+            color: #555;
+        }
+    </style>
 </head>
 <body>
+
 <nav>
-    <button onclick="mostrarProductos()">Productos</button>
-    <button onclick="mostrarFormulario()">Agregar Producto</button>
+    <button onclick="mostrar('productos')">1) Productos</button>
+    <button onclick="mostrar('carrito')">2) Ver Carrito</button>
+    <button onclick="mostrar('pedido')">3) Realizar Pedido</button>
+    <button onclick="mostrar('historial')">4) Historial de Pedidos</button>
+    <button onclick="mostrar('agregarProducto')">5) Agregar Producto</button>
 </nav>
 
-<section id="seccion-productos" style="display: none;">
-    <h2>Lista de Productos</h2>
-    <table border="1" id="tabla-productos"><tbody></tbody></table>
+<section id="productos">
+    <h2>Listado de Productos</h2>
+    <div id="lista-productos"></div>
 </section>
 
-<section id="seccion-formulario" style="display: none;">
-    <h2>Agregar Producto</h2>
-    <form id="form-agregar" onsubmit="agregarProducto(event)">
-        <input name="nombre" placeholder="Nombre" required><br>
-        <textarea name="descripcion" placeholder="Descripción" required></textarea><br>
-        <input name="precio" type="number" required><br>
-        <input name="categoria" placeholder="Categoría" required><br>
-        <input name="imagenUrl" placeholder="Imagen URL" required><br>
-        <input name="stock" type="number" required><br>
-        <button type="submit">Guardar</button>
-    </form>
-    <p id="resultado-formulario"></p>
+<section id="carrito">
+    <h2>Carrito de Compras</h2>
+    <div id="carrito-items"></div>
 </section>
+
+<section id="pedido">
+    <h2>Realizar Pedido</h2>
+    <label>ID Usuario: <input type="number" id="usuario-id" /></label>
+    <br><br>
+    <button onclick="realizarPedido()">Confirmar Pedido</button>
+    <p id="pedido-estado"></p>
+</section>
+
+<section id="historial">
+    <h2>Historial de Pedidos</h2>
+    <label>ID Usuario: <input type="number" id="usuario-id-historial" /></label>
+    <button onclick="cargarHistorial()">Ver Historial</button>
+    <div id="lista-historial"></div>
+</section>
+
+<section id="agregarProducto">
+    <h2>Agregar Nuevo Producto</h2>
+    <form id="form-agregar-producto">
+        <input type="text" id="nombre" placeholder="Nombre" required />
+        <input type="text" id="descripcion" placeholder="Descripción" />
+        <input type="number" id="precio" placeholder="Precio" required step="0.01" />
+
+        <!-- Input file oculto -->
+        <input type="file" id="archivoImagen" accept="image/*" style="display:none" />
+        <!-- Label estilizado que actúa como botón -->
+        <label for="archivoImagen">Subir imagen</label>
+        <!-- Nombre archivo seleccionado -->
+        <span id="nombreArchivoSeleccionado"></span>
+
+        <input type="hidden" id="imagenUrl" />
+        <input type="number" id="stock" placeholder="Stock" required />
+        <input type="text" id="categoria" placeholder="Categoría" />
+        <button type="submit">Agregar Producto</button>
+    </form>
+    <p id="agregar-producto-estado"></p>
+</section>
+
+<script>
+    const carrito = [];
+
+    function mostrar(id) {
+      document.querySelectorAll("section").forEach(s => s.classList.remove("visible"));
+      document.getElementById(id).classList.add("visible");
+      if (id === "productos") cargarProductos();
+      if (id === "carrito") mostrarCarrito();
+      if (id === "agregarProducto") {
+          document.getElementById("agregar-producto-estado").innerText = "";
+          document.getElementById("form-agregar-producto").reset();
+          document.getElementById("nombreArchivoSeleccionado").textContent = "";
+      }
+    }
+
+    function cargarProductos() {
+      fetch("/api/productos")
+        .then(res => res.json())
+        .then(data => {
+          const contenedor = document.getElementById("lista-productos");
+          contenedor.innerHTML = "";
+          data.forEach(prod => {
+            const div = document.createElement("div");
+            div.className = "producto";
+            div.innerHTML = `
+              <strong>${prod.nombre}</strong> - $${prod.precio.toFixed(2)} - Stock: ${prod.stock}<br>
+              <img src="${prod.imagenUrl || 'https://via.placeholder.com/100'}" width="100" alt="${prod.nombre}"><br>
+              Cantidad: <input type="number" id="cant-${prod.id}" min="1" max="${prod.stock}" value="1">
+              <button onclick="agregarAlCarrito(${prod.id}, '${prod.nombre}', ${prod.precio})">Agregar al Carrito</button>
+              <button class="btn-eliminar" onclick="eliminarProducto(${prod.id})">Eliminar</button>
+            `;
+            contenedor.appendChild(div);
+          });
+        })
+        .catch(e => {
+          document.getElementById("lista-productos").innerHTML = "<p>Error cargando productos.</p>";
+          console.error(e);
+        });
+    }
+
+    function agregarAlCarrito(id, nombre, precio) {
+      const cantidad = parseInt(document.getElementById("cant-" + id).value);
+      const existente = carrito.find(item => item.productoId === id);
+      if (existente) {
+        existente.cantidad += cantidad;
+      } else {
+        carrito.push({ productoId: id, nombre, precio, cantidad });
+      }
+      alert("Producto agregado al carrito.");
+    }
+
+    function eliminarProducto(id) {
+      if (!confirm("¿Seguro que quieres eliminar este producto?")) return;
+      fetch(`/api/productos/${id}`, {
+        method: "DELETE"
+      })
+      .then(res => {
+        if (!res.ok) return res.text().then(text => { throw new Error(text); });
+        alert("Producto eliminado.");
+        cargarProductos();
+      })
+      .catch(err => {
+        alert("Error al eliminar producto: " + err.message);
+      });
+    }
+
+    function mostrarCarrito() {
+      const contenedor = document.getElementById("carrito-items");
+      if (carrito.length === 0) {
+        contenedor.innerHTML = "<p>El carrito está vacío.</p>";
+        return;
+      }
+      let html = "<table><tr><th>Producto</th><th>Precio</th><th>Cantidad</th><th>Subtotal</th></tr>";
+      let total = 0;
+      carrito.forEach(item => {
+        const subtotal = item.precio * item.cantidad;
+        total += subtotal;
+        html += `<tr>
+                  <td>${item.nombre}</td>
+                  <td>$${item.precio.toFixed(2)}</td>
+                  <td>${item.cantidad}</td>
+                  <td>$${subtotal.toFixed(2)}</td>
+                </tr>`;
+      });
+      html += `<tr><td colspan="3"><strong>Total</strong></td><td><strong>$${total.toFixed(2)}</strong></td></tr></table>`;
+      contenedor.innerHTML = html;
+    }
+
+    function realizarPedido() {
+      const usuarioId = parseInt(document.getElementById("usuario-id").value);
+      if (!usuarioId || carrito.length === 0) {
+        alert("Debe ingresar un ID de usuario y tener productos en el carrito.");
+        return;
+      }
+
+      const pedido = {
+        usuarioId: usuarioId,
+        itemsPedido: carrito.map(item => ({
+          productoId: item.productoId,
+          cantidad: item.cantidad
+        }))
+      };
+
+      fetch("/api/pedidos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pedido)
+      })
+        .then(res => {
+          if (!res.ok) return res.text().then(text => { throw new Error(text); });
+          return res.json();
+        })
+        .then(data => {
+          document.getElementById("pedido-estado").innerText = "Pedido creado con éxito. ID: " + data.id;
+          carrito.length = 0;
+        })
+        .catch(err => {
+          document.getElementById("pedido-estado").innerText = "Error: " + err.message;
+        });
+    }
+
+    function cargarHistorial() {
+      const userId = document.getElementById("usuario-id-historial").value;
+      fetch(`/api/usuarios/${userId}/pedidos`)
+        .then(res => res.json())
+        .then(data => {
+          const contenedor = document.getElementById("lista-historial");
+          if (data.length === 0) {
+            contenedor.innerHTML = "<p>No hay pedidos.</p>";
+            return;
+          }
+          let html = "";
+          data.forEach(pedido => {
+            html += `<div style="margin-bottom:10px;border:1px solid #ccc;padding:10px;">
+                       <strong>Pedido #${pedido.id}</strong><br>
+                       Estado: ${pedido.estado} <br>
+                       Total: $${pedido.costoTotal} <br>
+                       Fecha: ${pedido.fechaCreacion} <br>
+                       Productos:
+                       <ul>
+                         ${pedido.lineas.map(linea => `
+                           <li>${linea.producto.nombre} x ${linea.cantidad}</li>`).join("")}
+                       </ul>
+                     </div>`;
+          });
+          contenedor.innerHTML = html;
+        });
+    }
+
+    // Mostrar nombre archivo seleccionado al elegir imagen
+    document.getElementById('archivoImagen').addEventListener('change', function() {
+        const nombreArchivo = this.files.length > 0 ? this.files[0].name : '';
+        document.getElementById('nombreArchivoSeleccionado').textContent = nombreArchivo;
+    });
+
+    document.getElementById("form-agregar-producto").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const archivo = document.getElementById("archivoImagen").files[0];
+
+      let imagenUrl = "";
+
+      if (archivo) {
+        const formData = new FormData();
+        formData.append("archivo", archivo);
+
+        const resImg = await fetch("/api/imagenes/subir", {
+          method: "POST",
+          body: formData
+        });
+
+        if (!resImg.ok) {
+          document.getElementById("agregar-producto-estado").innerText = "Error al subir imagen";
+          return;
+        }
+
+        imagenUrl = await resImg.text();
+      }
+
+      const nuevoProducto = {
+        nombre: document.getElementById("nombre").value,
+        descripcion: document.getElementById("descripcion").value,
+        precio: parseFloat(document.getElementById("precio").value),
+        imagenUrl: imagenUrl,
+        stock: parseInt(document.getElementById("stock").value),
+        categoria: document.getElementById("categoria").value
+      };
+
+      try {
+        const response = await fetch("/api/productos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(nuevoProducto)
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || "Error al agregar producto");
+        }
+
+        document.getElementById("agregar-producto-estado").innerText = "Producto agregado con éxito.";
+        document.getElementById("form-agregar-producto").reset();
+        document.getElementById("nombreArchivoSeleccionado").textContent = "";
+        mostrar('productos');
+      } catch (error) {
+        document.getElementById("agregar-producto-estado").innerText = "Error: " + error.message;
+      }
+    });
+
+    mostrar('productos');
+</script>
+
 </body>
 </html>
+
+
+
+

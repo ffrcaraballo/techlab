@@ -1,11 +1,20 @@
-// Clase LineaPedido
 package com.techlab.pedidos;
 
 import com.techlab.productos.Producto;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "lineas_pedido")
 public class LineaPedido {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "producto_id")
     private Producto producto;
+
     private int cantidad;
 
     public LineaPedido() {}
@@ -13,6 +22,16 @@ public class LineaPedido {
     public LineaPedido(Producto producto, int cantidad) {
         this.producto = producto;
         this.cantidad = cantidad;
+    }
+
+    // Getters y setters
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Producto getProducto() {
@@ -29,9 +48,5 @@ public class LineaPedido {
 
     public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
-    }
-
-    public double calcularSubtotal() {
-        return producto.getPrecio() * cantidad;
     }
 }

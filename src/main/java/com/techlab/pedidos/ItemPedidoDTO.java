@@ -1,5 +1,4 @@
-// DTO item del pedido
-package com.techlab.pedidos;
+package com.techlab.pedidos.dto;
 
 public class ItemPedidoDTO {
     private Long productoId;
@@ -28,3 +27,4 @@ public class ItemPedidoDTO {
         this.cantidad = cantidad;
     }
 }
+

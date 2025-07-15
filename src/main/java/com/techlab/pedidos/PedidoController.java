@@ -1,88 +1,42 @@
-// Controlador de pedidos
 package com.techlab.pedidos;
 
 import com.techlab.excepciones.StockInsuficienteException;
-import com.techlab.productos.Producto;
-
+import com.techlab.pedidos.dto.PedidoDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/pedidos")
+@RequestMapping("/api")
+@CrossOrigin(origins = "*")
 public class PedidoController {
 
-    private final Map<Long, Pedido> pedidos = new HashMap<>();
-    private final Map<Long, Producto> baseDeProductos = new HashMap<>(); // Simula productos existentes
-    private final AtomicLong idGenerador = new AtomicLong(1);
+    private final PedidoService pedidoService;
 
-    // Simular historial por usuario
-    private final Map<Long, List<Pedido>> historialPorUsuario = new HashMap<>();
+    public PedidoController(PedidoService pedidoService) {
+        this.pedidoService = pedidoService;
+    }
 
-    @PostMapping
+    // Crear un nuevo pedido
+    @PostMapping("/pedidos")
     public ResponseEntity<?> crearPedido(@RequestBody PedidoDTO pedidoDTO) {
-        List<LineaPedido> lineas = new ArrayList<>();
-
-        // Validar stock
-        for (ItemPedidoDTO item : pedidoDTO.getItemsPedido()) {
-            Producto prod = baseDeProductos.get(item.getProductoId());
-
-            if (prod == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Producto con ID " + item.getProductoId() + " no encontrado.");
-            }
-
-            if (prod.getStock() < item.getCantidad()) {
-                throw new StockInsuficienteException("Stock insuficiente para producto: " + prod.getNombre());
-            }
-
-            lineas.add(new LineaPedido(prod, item.getCantidad()));
+        try {
+            Pedido pedido = pedidoService.crearPedido(pedidoDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(pedido);
+        } catch (StockInsuficienteException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar el pedido.");
         }
-
-        // Descontar stock
-        for (ItemPedidoDTO item : pedidoDTO.getItemsPedido()) {
-            Producto prod = baseDeProductos.get(item.getProductoId());
-            prod.setStock(prod.getStock() - item.getCantidad());
-        }
-
-        // Crear pedido
-        Pedido nuevo = new Pedido();
-        nuevo.setId(idGenerador.getAndIncrement());
-        nuevo.setUsuarioId(pedidoDTO.getUsuarioId());
-        nuevo.setLineas(lineas);
-
-        pedidos.put(nuevo.getId(), nuevo);
-
-        historialPorUsuario.computeIfAbsent(nuevo.getUsuarioId(), k -> new ArrayList<>()).add(nuevo);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
 
-    @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<?> listarPedidosPorUsuario(@PathVariable Long usuarioId) {
-        List<Pedido> historial = historialPorUsuario.get(usuarioId);
-        if (historial == null || historial.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("No se encontraron pedidos para el usuario " + usuarioId);
-        }
-        return ResponseEntity.ok(historial);
-    }
-
-    // Método para simular carga de productos (puede eliminarse si se usa una base real)
-    @PostMapping("/simular-catalogo")
-    public ResponseEntity<?> cargarProductosSimulados(@RequestBody List<Producto> productos) {
-        for (Producto p : productos) {
-            baseDeProductos.put(p.getId(), p);
-        }
-        return ResponseEntity.ok("Productos simulados cargados.");
-    }
-
-    // Manejo de error personalizado
-    @ExceptionHandler(StockInsuficienteException.class)
-    public ResponseEntity<String> manejarStockInsuficiente(StockInsuficienteException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("⚠️ " + ex.getMessage());
+    // Obtener pedidos por usuario
+    @GetMapping("/usuarios/{usuarioId}/pedidos")
+    public ResponseEntity<List<Pedido>> obtenerPedidosPorUsuario(@PathVariable Long usuarioId) {
+        List<Pedido> pedidos = pedidoService.obtenerPedidosPorUsuario(usuarioId);
+        return ResponseEntity.ok(pedidos);
     }
 }
+

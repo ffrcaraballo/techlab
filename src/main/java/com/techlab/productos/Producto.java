@@ -1,7 +1,19 @@
 package com.techlab.productos;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+
+@Entity
+@Table(name = "productos")
 public class Producto {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String nombre;
     private String descripcion;
     private double precio;
@@ -43,4 +55,3 @@ public class Producto {
     public String getCategoria() { return categoria; }
     public void setCategoria(String categoria) { this.categoria = categoria; }
 }
-// Clase Producto
